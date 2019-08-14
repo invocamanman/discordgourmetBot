@@ -6,6 +6,9 @@ const champions = require('./champions.json');
 const fetch = require("node-fetch");
 const ytdl = require('ytdl-core');
 
+//(.?"name":")([A-Z]?[a-z][^"]?\s?[A-Z]?[a-z]*)
+
+
 
 let dispatcher
 let championsarray = [];
@@ -34,11 +37,11 @@ function shuffle(array) {
   let status;
   let respuesta;
   
-  async function getgame(name){
+  function getgame(name){
 
     return new Promise (function (resolve,reject){
         fetch(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}`,  {headers: {
-        "X-Riot-Token": "RGAPI-2d2f1fc5-3b2b-4187-ab16-8f9d1aa8dbd9"
+        "X-Riot-Token": "RGAPI-79eb9e49-5db3-4d9c-a8c8-48c39fee143a"
       }})
     .then(function(response) {
        
@@ -48,17 +51,16 @@ function shuffle(array) {
       console.log("json1",json);
       console.log("json2",json.id)
       fetch(`https://euw1.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${json.id}`,  {headers: {
-        "X-Riot-Token": "RGAPI-2d2f1fc5-3b2b-4187-ab16-8f9d1aa8dbd9"
+        "X-Riot-Token": "RGAPI-79eb9e49-5db3-4d9c-a8c8-48c39fee143a"
       }}).then(function(response) {
-            if (response.status==200)
-                status=true;
-            else
-                status = false;
+            status=response.status//403 o 404 o 200
             return response.json();
          })
         .then(function(json) {
+            console.log(json);
             let compañeros=[];
-            if(status)
+            let compañerostable= [];
+            if(status==200)
             {
                 console.log(json);
                 console.log("respuesta", respuesta)
@@ -66,13 +68,32 @@ function shuffle(array) {
                 json.participants.map(item=> {
                     compañeros.push(item.summonerName)
                 })
-                
-                respuesta = "Esta jugando, y lleva: " + json.gameLength/60 + " minutos, con: "+ compañeros;
+                compañeros.map(compañero => {
+                    compañerostable.push(compañero + ' '.repeat(16-compañero.length))
+                })
+                console.log(compañerostable)
+                respuesta = "Esta jugando, y lleva: " + (json.gameLength/60).toPrecision(4) + " minutos, con: "+ `\`\`\`
++-----------------------------------------------------------------------------+
+|                                      VS                                     |
++--------------------------------------+--------------------------------------+
+|           ${compañerostable[0]}           |           ${compañerostable[5]}           |
++--------------------------------------+--------------------------------------+
+|           ${compañerostable[1]}           |           ${compañerostable[6]}           |
++--------------------------------------+--------------------------------------+
+|           ${compañerostable[2]}           |           ${compañerostable[7]}           |
++--------------------------------------+--------------------------------------+
+|           ${compañerostable[3]}           |           ${compañerostable[8]}           |
++--------------------------------------+--------------------------------------+
+|           ${compañerostable[4]}           |           ${compañerostable[9]}           |
++--------------------------------------+--------------------------------------+\`\`\``+compañeros.slice(0,5)+" vs " + compañeros.slice(5,10);
             }
-            else{
+            else if(status==404){
                 respuesta = "no esta jugando ahora mismo"
             }
-           
+            else if(status==403){
+                respuesta = "la key caducó D:"
+            }   
+           console.log(respuesta)
             resolve(respuesta);
         });
        
@@ -111,6 +132,14 @@ client.login(token);
 client.on('message', message => {
 
     //if (!message.content.startsWith(prefix) ) return;
+    
+    //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))
+    if (message.author.username==""||message.author.username=="")
+    {
+        return message.channel.send(`${message.author} <:DansGame:443432789552136194> 👉 🚪 `);
+    }
+    if (message.content.includes("pepega")||message.content.includes("Pepega"))
+        message.channel.send(`Se solicita al señor ${message.author} que pare de usar pepeg@, por el bien de todos, en caso reiterado se le baneará de bot :)`);
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).split(/ +/);
@@ -255,7 +284,20 @@ client.on('message', message => {
         message.channel.send('https://www.patreon.com/himebot');
         break;
         case "pepega":
-        message.channel.send(`<:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> <:Pepega:494501983705628703> `);
+        message.channel.send(`<:DansGame:443432789552136194> <a:lul3d:598393366379757568> `);
+        break;
+        case "gif":
+        message.channel.send(`https://cdn.discordapp.com/emojis/598393366379757568.gif`);
+        break;
+        case "emoji":
+        console.log(client.emojis)
+        let emojiguay = client.emojis.find(emoji => emoji.name === args[0])
+        message.channel.send(` ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} ${emojiguay} `);
+        break;
+        case "rule34":
+        console.log(client.emojis)
+        let emojiguay2 = client.emojis.find(emoji => emoji.name === "FeelsWeirderMan")
+        message.channel.send(` ${emojiguay2}  `);
         break;
         case "weebsout":
         message.channel.send(`<:DansGame:443432789552136194> 👉 🚪 `);
@@ -319,15 +361,15 @@ client.on('message', message => {
         case "evo":
             message.channel.send('https://www.twitch.tv/evo');
             break;
-        case "elimina":
-        if(message.author.id==136168127602884608 && (args[0]!=2))
-            message.channel.send('a eliminar a tu puta casa'); 
-        else{
-            //console.log(message.author)
-            let amount = parseInt(args[0]);
-            message.channel.bulkDelete(amount);
-        }
-        break;
+        // case "elimina":
+        // if(message.author.id==136168127602884608 && (args[0]!=2))
+        //     message.channel.send('a eliminar a tu puta casa'); 
+        // else{
+        //     //console.log(message.author)
+        //     let amount = parseInt(args[0]);
+        //     message.channel.bulkDelete(amount);
+        // }
+        // break;
         case "felicitar":
         if (message.author.id==136168127602884608||message.author.discriminator==3505)
              message.channel.send('a eliminar a tu puta casa'); 
@@ -353,7 +395,7 @@ client.on('message', message => {
             member2.removeRole(role2);
             break;
         case "adictaduramanodura":
-                    for ( let i = 0; i<3; i++){
+                    for ( let i = 0; i<1; i++){
                         const webAttachment = new Discord.Attachment('https://cdn.discordapp.com/attachments/269766159665070080/606873473867972608/unknown.png')
                         message.channel.send(webAttachment)
                     }
@@ -377,7 +419,14 @@ client.on('message', message => {
 
                 break;
         case "jugandolol":
-                getgame(args[0]).then(function(respuesa){
+                let sumname;
+               args.forEach((arg,i) => {
+                if ( i ==0)
+                    sumname = arg;
+                else
+                    sumname= sumname+ " "+ arg
+               });
+                getgame(sumname).then(function(respuesa){
                     message.channel.send(respuesta)                   
                 })
                 
@@ -395,9 +444,94 @@ client.on('message', message => {
             message.channel.send("Tus PDV estan al máximo ahora");
             break; 
         case "jesusdejaelbotytrabaja":
-            message.channel.send("voooooooooy ):");
+              message.channel.send("voooooooooy ):");
             break; 
-            
+        case "joan":
+            message.channel.send("joan es tonto :)");
+          break; 
+        case "carapito":
+        let idjoan= client.users.find("username","Joan").id
+
+           //let idjoan = client.users.get("name", "Joan");
+
+          message.channel.send(`<@${idjoan}>`);
+        break; 
+        case "getinhere":
+        let getinhere;
+        client.users.forEach(function(value){
+            getinhere+= `<@${value.id}> `
+        })
+        message.channel.send(getinhere);
+        break;
+
+        case "estonto":
+        let idjoan2= client.users.find("username","Joan").id
+        if (message.author.username == "Joan")
+             message.channel.send(`<@${idjoan2}> tú eres tonto .)`);
+        else
+            message.channel.send(`<@${idjoan2}> ES tonto .)`);
+        break;
+        case "react":
+
+        message.channel.fetchMessages({
+            limit: args[0],
+        }).then((messages) => {
+            var i = 0;
+            messages.forEach(function(message) {
+                i++;
+                if (i == args[0]) {
+                    message.react(client.emojis.find(emoji => emoji.name === args[1])).catch(console.error);
+                    message.channel.bulkDelete(1);
+                }
+            })
+        });
+        //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))
+        break;
+        case "reactmucho":
+
+        message.channel.fetchMessages({
+            limit: args[0],
+        }).then((messages) => {
+            var i = 0;
+            messages.forEach(function(message) {
+                i++;
+                //if (i == args[0]) {
+                    message.react(client.emojis.find(emoji => emoji.name === args[1])).catch(console.error);
+                    
+                //}
+            })
+            message.channel.bulkDelete(1);
+        });
+        //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))
+        break;
+        
+        case "reactmucho":
+
+        message.channel.fetchMessages({
+            limit: args[0],
+        }).then((messages) => {
+            var i = 0;
+            messages.forEach(function(message) {
+                i++;
+                //if (i == args[0]) {
+                    message.react(client.emojis.find(emoji => emoji.name === args[1])).catch(console.error);
+                    
+                //}
+            })
+            message.channel.bulkDelete(1);
+        });
+        //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))
+        break;
+
+        case "reactid":
+        message.channel.fetchMessage(args[0]).then(messageid => {
+            messageid.react(client.emojis.find(emoji => emoji.name === args[1])).catch(console.error);    
+        })
+        message.channel.bulkDelete(1);
+        //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))
+        break;
+
+
         default:
             message.channel.send( "repeat plox" );
 
@@ -408,4 +542,4 @@ client.on('message', message => {
 });
 
 
-//champion pool,. y separada por lineas 
+//champion pool,. y separada por lineas S
