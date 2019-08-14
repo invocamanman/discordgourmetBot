@@ -6,7 +6,7 @@ const champions = require('./champions.json');
 const fetch = require("node-fetch");
 const ytdl = require('ytdl-core');
 
-ç//(.?"name":")([A-Z]?[a-z][^"]?\s?[A-Z]?[a-z]*)
+//(.?"name":")([A-Z]?[a-z][^"]?\s?[A-Z]?[a-z]*)
 
 
 
