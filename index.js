@@ -1,11 +1,11 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const { prefix, token } = require('./config.json');
+const { prefix, token, RiotToken } = require('./config.json');
 
 const champions = require('./champions.json');
 const fetch = require("node-fetch");
 const ytdl = require('ytdl-core');
-
+//const rp = require('request-promise');
 //(.?"name":")([A-Z]?[a-z][^"]?\s?[A-Z]?[a-z]*)
 
 
@@ -25,6 +25,10 @@ for (x in champions) {
     }
     
  }
+ function reroll(array){
+    return array[Math.floor(Math.random()*( array.length))]
+ }
+   
  
 
 function shuffle(array) {
@@ -41,7 +45,7 @@ function shuffle(array) {
 
     return new Promise (function (resolve,reject){
         fetch(`https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}`,  {headers: {
-        "X-Riot-Token": "RGAPI-79eb9e49-5db3-4d9c-a8c8-48c39fee143a"
+        "X-Riot-Token": RiotToken
       }})
     .then(function(response) {
        
@@ -51,7 +55,7 @@ function shuffle(array) {
       console.log("json1",json);
       console.log("json2",json.id)
       fetch(`https://euw1.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${json.id}`,  {headers: {
-        "X-Riot-Token": "RGAPI-79eb9e49-5db3-4d9c-a8c8-48c39fee143a"
+        "X-Riot-Token": RiotToken
       }}).then(function(response) {
             status=response.status//403 o 404 o 200
             return response.json();
@@ -119,7 +123,50 @@ async function getjoke(){
     })
 })
 };
-let rolesarray =['Fighter', 'Tank', 'Mage', 'Assassin', 'Support', 'Marksman']
+
+
+
+// const requestOptions = {
+//     method: 'GET',
+//     uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
+//     qs: {
+//       'symbol': 'XLM'
+//     },
+//     headers: {
+//       'X-CMC_PRO_API_KEY': '3fa83039-a5cb-4de1-aeec-e38b0a2a22a4'
+//     },
+//     json: true,
+//     gzip: true
+//   };
+
+// async function getXlm(){
+//     return new Promise (function (resolve,reject){
+//         rp(requestOptions)
+//         .then(function(json) {
+//             console.log(json.data   )
+//             resolve(json.symbols)
+//         })
+// })
+// };
+
+async function getXlm(){
+
+    return new Promise (function (resolve,reject){
+        fetch("https://apiv2.bitcoinaverage.com/indices/local/ticker/XLMEUR", {
+  headers: {
+    //'X-CMC_PRO_API_KEY': '3fa83039-a5cb-4de1-aeec-e38b0a2a22a4'
+  }
+})
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(json) {
+        console.log(json)
+      resolve(json)
+    })
+})
+};
+let rolesarray =['Fighter', 'Tank', 'Assassin','Mage', 'Support', 'Marksman']
 
 client.once('ready', () => {
     
@@ -138,7 +185,7 @@ client.on('message', message => {
     {
         return message.channel.send(`${message.author} <:DansGame:443432789552136194> 👉 🚪 `);
     }
-    if (message.content.includes("pepega")||message.content.includes("Pepega"))
+    if (message.content.includes("pepega")||message.content.includes("Pepega")|| (message.content.replace(/\s/g, '')).includes("pepega") )
         message.channel.send(`Se solicita al señor ${message.author} que pare de usar pepeg@, por el bien de todos, en caso reiterado se le baneará de bot :)`);
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -162,15 +209,15 @@ client.on('message', message => {
              if (message.mentions.users.size!=5) {
                  return message.channel.send(`Hay 5 invocadores en la grieta EMPANAO`);
              }
-             let summonerlist2 = message.mentions.users.map(user => user.username);
+             let summonerlist2 = message.mentions.users.map(user => user.discriminator);
  
             shuffle(summonerlist2)   
             
         
              masarrayquenunca = [];
-             masarrayquenunca.push(rolesarray[Math.floor(Math.random()*(2))]) //top
+             masarrayquenunca.push(rolesarray[Math.floor(Math.random()*(3))]) //top
              masarrayquenunca.push(rolesarray[Math.floor(Math.random()*(2))+2])//mid
-             masarrayquenunca.push(rolesarray[Math.floor(Math.random()*(2))])//jungler
+             masarrayquenunca.push(rolesarray[Math.floor(Math.random()*(3))])//jungler
              masarrayquenunca.push(rolesarray[5])//adc
              masarrayquenunca.push(rolesarray[4]) //supp
             
@@ -182,19 +229,66 @@ client.on('message', message => {
                 for (x in champions) {
                     if( (champions[x].tags[0] == rol)|| (champions[x].tags[1] == rol))
                     {
-                        championsrol2.push(x)
+                        championsrol2.push(x)//CAMBIAR CGHAMPIONROL2 POR CUSTOM
                     }
                 }
                 championarray.push(championsrol2[Math.floor(Math.random()*( championsrol2.length))])
             })
         
-             message.channel.send(`Top: ${summonerlist2[0]} con el champ: ${championarray[0]}  \n Mid: ${summonerlist2[1]},con el champ: ${championarray[1]}\n Jungler: ${summonerlist2[2]},con el champ: ${championarray[2]}\n Adc: ${summonerlist2[3]},con el champ: ${championarray[3]}\n Support: ${summonerlist2[4]} con el champ: ${championarray[4]}`)
+             message.channel.send(`Top: ${message.mentions.users.find(user => user.discriminator==summonerlist2[0])} con el champ: ${championarray[0]}  \n Mid: ${message.mentions.users.find(user => user.discriminator==summonerlist2[1])},con el champ: ${championarray[1]}\n Jungler: ${message.mentions.users.find(user => user.discriminator==summonerlist2[2])},con el champ: ${championarray[2]}\n Adc: ${message.mentions.users.find(user => user.discriminator==summonerlist2[3])},con el champ: ${championarray[3]}\n Support: ${message.mentions.users.find(user => user.discriminator==summonerlist2[4])} con el champ: ${championarray[4]}`)
              // send the entire array of strings as a message
              // by default, discord.js will `.join()` the array with `\n`
               break;
 
-           
+        case "megarandomizer2":
+              
+            if (!args.length) {
+                  return message.channel.send(`You didn't provide any arguments, ${message.author}!`);
+            }
+            if (args.length!=5) {
+                console.log(args.length,5)
+                message.channel.send(`EMPANAO`, {tts: true});
+                return message.channel.send(`Hay 5 invocadores en la grieta EMPANAO`,);
+            } 
+            shuffle(args)   
+             
+         
+              masarrayquenunca2 = [];
+              masarrayquenunca2.push(rolesarray[Math.floor(Math.random()*(3))]) //top
+              masarrayquenunca2.push(rolesarray[Math.floor(Math.random()*(2))+2])//mid
+              masarrayquenunca2.push(rolesarray[Math.floor(Math.random()*(3))])//jungler
+              masarrayquenunca2.push(rolesarray[5])//adc
+              masarrayquenunca2.push(rolesarray[4]) //supp
+             
+             console.log(masarrayquenunca2)
+             championarray2 = []
+             masarrayquenunca2.map(function (rol){
+                 let championsrol2 = [];
+                 console.log('hg', rol)
+                 for (x in champions) {
+                     if( (champions[x].tags[0] == rol)|| (champions[x].tags[1] == rol))
+                     {
+                         championsrol2.push(x)
+                     }
+                 }
+                 let champ = championsrol2[Math.floor(Math.random()*( championsrol2.length))]
+                 let same =  championarray2.includes(champ)
+                 while (same){
+                     champ=reroll(championsrol2);
+                     same =  championarray2.includes(champ)
+                 }
+                 championarray2.push(champ)
+             })
+         
+              message.channel.send(`Top: ${args[0]} con el champ: ${championarray2[0]}  \n Mid: ${args[1]},con el champ: ${championarray2[1]}\n Jungler: ${args[2]},con el champ: ${championarray2[2]}\n Adc: ${args[3]},con el champ: ${championarray2[3]}\n Support: ${args[4]} con el champ: ${championarray2[4]}`)
+              // send the entire array of strings as a message
+              // by default, discord.js will `.join()` the array with `\n`
+               break;
+ 
+            
         case "randomrol":
+                if (args.length!=1)
+                    return message.channel.send(`Tiene que poner uno de estos, señor  ${message.author}!, ${rolesarray}`);
                 let thisrol = args[0].charAt(0).toUpperCase() + args[0].substring(1);
                 if (!rolesarray.includes(thisrol) ) {
                     return message.channel.send(`Tiene que poner uno de estos, señor  ${message.author}!, ${rolesarray}`);
@@ -531,7 +625,19 @@ client.on('message', message => {
         //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))
         break;
 
-
+        case "xlm":
+        getXlm().then(function(respuesta){
+            let preciodia = respuesta.changes.percent.day;
+            if (preciodia > 0){
+                preciodia = "+"+preciodia 
+            }
+            let respuestatexto = `\`\`\`diff
+${preciodia}% hoy
+Actual: ${respuesta.bid}€
+En total tienes: ${respuesta.bid*688}€ \`\`\``;
+            message.channel.send(respuestatexto)       
+        })
+        break;  
         default:
             message.channel.send( "repeat plox" );
 
