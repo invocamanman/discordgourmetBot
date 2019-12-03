@@ -185,8 +185,17 @@ client.on('message', message => {
     {
         return message.channel.send(`${message.author} <:DansGame:443432789552136194> 👉 🚪 `);
     }
+
+    if ( (message.author.id==201830981437620225) && (message.content.includes("pole")||message.content.includes("Pole")) ){
+        message.delete(1);
+        message.channel.send(`Se solicita al señor ${message.author} que pare de ser un pepeg@`);
+        message.channel.send(`Pole`);
+    }
+
     if (message.content.includes("pepega")||message.content.includes("Pepega")|| (message.content.replace(/\s/g, '')).includes("pepega") )
         message.channel.send(`Se solicita al señor ${message.author} que pare de usar pepeg@, por el bien de todos, en caso reiterado se le baneará de bot :)`);
+
+
     if (!message.content.startsWith(prefix) || message.author.bot) return;
 
     const args = message.content.slice(prefix.length).split(/ +/);
