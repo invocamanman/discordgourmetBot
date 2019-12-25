@@ -5,6 +5,8 @@ const { prefix, token, RiotToken } = require('./config.json');
 const champions = require('./champions.json');
 const fetch = require("node-fetch");
 const ytdl = require('ytdl-core');
+var CronJob = require('cron').CronJob;
+
 //const rp = require('request-promise');
 //(.?"name":")([A-Z]?[a-z][^"]?\s?[A-Z]?[a-z]*)
 
@@ -171,6 +173,21 @@ let rolesarray =['Fighter', 'Tank', 'Assassin','Mage', 'Support', 'Marksman']
 client.once('ready', () => {
     
     console.log('Ready!');
+
+    var guild = client.guilds.get('269766159665070080');
+   
+    var job = new CronJob('00 00 00 * * *', function() {
+        // do something
+        if(guild && guild.channels.get('269766159665070080')){
+            guild.channels.get('269766159665070080').send("pole");
+            guild.channels.get('269766159665070080').send("LA POLE IS OVER");
+        }
+         }, function () {
+           /* This function is executed when the job stops */
+         },
+         true, /* Start the job right now */
+         "Europe/Madrid" /* Time zone of this job. */
+       );
     
 });
 
@@ -178,6 +195,7 @@ client.login(token);
 
 client.on('message', message => {
 
+    
     //if (!message.content.startsWith(prefix) ) return;
     
     //message.react(client.emojis.find(emoji => emoji.name === "Titirititi"))

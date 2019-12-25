@@ -10,6 +10,7 @@
   "author": "jesus",
   "license": "ISC",
   "dependencies": {
+    "cron": "^1.7.2",
     "discord.js": "^11.5.1",
     "ffmpeg-binaries": "^4.0.0",
     "node-fetch": "^2.6.0",
